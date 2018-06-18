@@ -95,8 +95,28 @@ class RectangleView: UIView {
      UIPinchGestureRecognizer - Pinching Objects
      */
     @objc func pinchGesture(_ recognizer: UIPinchGestureRecognizer) {
-        if let view = recognizer.view {
-            view.transform = view.transform.scaledBy(x: recognizer.scale, y: recognizer.scale)
+        if let view = recognizer.view,
+            recognizer.numberOfTouches == 2 {
+            
+            //
+            let p1 = recognizer.location(ofTouch: 0, in: self)
+            let p2 = recognizer.location(ofTouch: 1, in: self)
+            
+            let absolutePoint = CGPoint(x: p2.x - p1.x, y: p2.y - p1.y)
+            let radians = atan2(Double(absolutePoint.x), Double(absolutePoint.y))
+            
+            let absRad = fabs(radians)
+            
+            if absRad > .pi/3 && absRad < 2*(.pi/3) {
+                // increase in X direction
+                view.transform = view.transform.scaledBy(x: recognizer.scale, y: 1)
+            } else if absRad > 2*(.pi/3) && absRad < 5*(.pi/6) {
+                view.transform = view.transform.scaledBy(x: recognizer.scale, y: recognizer.scale)
+            } else {
+                // increase in Y direction
+                view.transform = view.transform.scaledBy(x: 1, y: recognizer.scale)
+            }
+            
             recognizer.scale = 1
         }
     }
